@@ -1,6 +1,3 @@
-// Θεόκλητος Κούταβος 321/2013087
-// Ιωάννης Κογχυλάκης 321/2013077
-
 import java.io.*;
 import java.net.*;
 import java.util.Arrays;
@@ -15,11 +12,9 @@ public class project3 {
     public static final String URL = "http://crypto-class.appspot.com/po?er=";
 
     public static void main(String[] args) throws IOException, Exception {
-        //το ciphertext σε πίνακα απο bytes
+        //ciphertext in bytes
         byte[] c = hexStringToByteArray(CIPHER_TEXT);
-        // ενα string που οποιο θα γεμιζει σιγα σιγα με τους χαρακτηρες που βρισκει
         String dec = "";
-        //χωρίζει τον πίνακα σε blocks ανάλογα με τα bytes
         for (int block = 0; block < (c.length - BLOCK_SIZE) / BLOCK_SIZE; block++) {
             
             byte[] cb = Arrays.copyOfRange(c, 0, c.length - block * BLOCK_SIZE);
@@ -29,18 +24,17 @@ public class project3 {
                 byte[] cm = cb.clone();
                 byte found = 0;
 
-                // βρίσκει την θέση όπου προσπαθούμε να μαντέψουμε τα bytes
                 int pos = cb.length - 1 - BLOCK_SIZE - i;
 
                 // PLAINTEXT
                 for (int b = 0; b < 256; b++) {
 
-                    // κανει pad ολα τα bytes απο την θεση που ειναι μεχρι το τέλος του block
+                    // pad
                     for (int k = 0; k < i + 1; k++) {
                         cm[pos + k] = (byte) (cb[pos + k] ^ (i + 1));
                     }
 
-                    // κανει την πραξη xor 
+                    // xor
                     cm[pos] = (byte) (cm[pos] ^ b);
 
                     int status = getUrlStatus(URL + byteArrayToHexString(cm));
@@ -52,31 +46,29 @@ public class project3 {
 
 
                     if (status == 404) {
-                        // το pad είναι σωστό αμα εμφανίσει το error 404
+                        // if pad is correct : error 404
                         found = (byte) b;
                         break;
                     } else if (status == 200) {
-                        // ειναι η δευτερη "σωστότερη μαντεψια"
-                        //Την κρατάμε μεχρι να βρει error 404 
-                        // Αν δεν βρει 404 τοτε κραταει αυτό το byte που είχε error 200
+                        // if 404 error not found 
+                        // error 200 is the next option
                         found = (byte) b;
                     }
                 }
 
-                // αποθηκεύει την τιμή μου βρήκε για το επόμενο
+              
                 cb[pos] = (byte) (cb[pos] ^ found);
 
-                // με την αλλαγή μέσω του πίνακα ASCII βάζει τα στοιχεια που βρίσκει στο string d
+                // ASCII
                 dec = (char) found + dec;
 
-                // εμφανίζει κάθε φορά την τιμή που βρήκε.
                 System.out.println("found : " + found + " = " + dec);
                 System.out.println();
             }
         }
         
         
-        // Παραγωγή 2 κλειδιων
+        // create 2 new keys for Erypted-then-Mac
         String k1 = makeKey();
         String k2 = makeKey();
         
@@ -84,7 +76,7 @@ public class project3 {
         System.out.println("Encryption key : " + k1);
         System.out.println("Authorisation key : " + k2);
         System.out.println("Plaintext : " + dec);
-        // Με την κλάση AuthenticatedEncryption γίνεται όλη η διαδικασία για το Encrypt-then-MAC
+        // AuthenticatedEncryption for Encrypted-then-Mac
         AuthenticatedEncryption authenticatedEncryption = new AuthenticatedEncryption(k1, k2);
         String encrypted = authenticatedEncryption.encrypt(dec);
         System.out.println("Authenticated and encrypted Plaintext: " + encrypted);
