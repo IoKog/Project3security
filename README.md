@@ -47,3 +47,5 @@ padding oracle attack. Once you decrypt the given ciphertext, please enter
 the decrypted message in the box below.
 
 The Magic Words are Squeamish Ossifrage
+
+At the end decrypted cipher text from the site must encrypted again Encrypted-Then-Mac.
